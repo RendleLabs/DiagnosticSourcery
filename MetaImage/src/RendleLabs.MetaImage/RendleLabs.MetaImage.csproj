@@ -14,4 +14,10 @@
     <PackageReference Include="System.Reactive.Linq" Version="4.1.2" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <ProjectReference Include="..\RendleLabs.InfluxDB.DiagnosticSourceListener\RendleLabs.InfluxDB.DiagnosticSourceListener.csproj" />
+    <ProjectReference Include="..\RendleLabs.InfluxDB\RendleLabs.InfluxDB.csproj" />
+  </ItemGroup>
+
 </Project>

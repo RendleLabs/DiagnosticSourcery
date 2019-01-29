@@ -10,14 +10,13 @@ using Microsoft.Extensions.Logging;
 
 namespace RendleLabs.MetaImage.Diagnostics
 {
-    public class Monitor : IHostedService
+    public class ConsoleMonitor : IHostedService
     {
-        private readonly ILogger<Monitor> _logger;
-        private readonly TaskCompletionSource<object> _tcs = new TaskCompletionSource<object>();
+        private readonly ILogger<ConsoleMonitor> _logger;
         private IDisposable _allListenersSubscription;
         private readonly ConcurrentBag<IDisposable> _subscriptions = new ConcurrentBag<IDisposable>();
 
-        public Monitor(ILogger<Monitor> logger)
+        public ConsoleMonitor(ILogger<ConsoleMonitor> logger)
         {
             _logger = logger;
         }
@@ -28,7 +27,7 @@ namespace RendleLabs.MetaImage.Diagnostics
             {
                 _subscriptions.Add(source.Do(pair => { Log(source.Name, pair.Key, pair.Value); }).Subscribe());
             }).Subscribe();
-            return _tcs.Task;
+            return Task.CompletedTask;
         }
 
         private void Log(string source, string key, object args)
@@ -64,7 +63,6 @@ namespace RendleLabs.MetaImage.Diagnostics
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _tcs.TrySetResult(null);
             _allListenersSubscription?.Dispose();
             foreach (var subscription in _subscriptions)
             {

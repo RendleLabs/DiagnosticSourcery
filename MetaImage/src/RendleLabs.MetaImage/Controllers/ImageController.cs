@@ -1,22 +1,33 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using AngleSharp;
+using AngleSharp.Browser;
 using AngleSharp.Html.Parser;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using RendleLabs.MetaImage.Extensions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.Primitives;
+using Configuration = AngleSharp.Configuration;
 
 namespace RendleLabs.MetaImage.Controllers
 {
     [Route("image")]
     public class ImageController : Controller
     {
+        private static readonly Regex MetaOgImageRegex = new Regex("<meta property=\"og:image\" content=\"(.*?)\".*?>");
+        private static readonly Regex MetaTwitterImageRegex = new Regex("<meta property=\"twitter:image\" content=\"(.*?)\".*?>");
+        private static readonly DiagnosticSource Diagnostics = new DiagnosticListener(typeof(ImageController).FullName);
+
         private readonly IHttpClientFactory _http;
         private readonly ILogger<ImageController> _logger;
 
@@ -30,6 +41,11 @@ namespace RendleLabs.MetaImage.Controllers
         public async Task<IActionResult> Index([FromQuery(Name = "u")] string uri, [FromQuery(Name = "w")] int? width,
             [FromQuery(Name = "h")] int? height)
         {
+            if (string.IsNullOrWhiteSpace(uri))
+            {
+                return BadRequest();
+            }
+
             var html = await GetHtmlAsync(uri);
             if (html == null) return NotFound();
 
@@ -50,6 +66,7 @@ namespace RendleLabs.MetaImage.Controllers
             {
                 var image = Image.Load(await imageResponse.Content.ReadAsStreamAsync());
 
+
                 ResizeImage(image, width.GetValueOrDefault(500), height.GetValueOrDefault(375));
 
                 var stream = EncodeImage(image);
@@ -63,6 +80,13 @@ namespace RendleLabs.MetaImage.Controllers
                     MustRevalidate = false,
                     Private = false
                 }.ToString();
+
+                if (Diagnostics.IsEnabled("ImageResize"))
+                {
+                    long originalSize = imageResponse.Content.Headers.ContentLength.GetValueOrDefault();
+                    long newSize = stream.Length;
+                    Diagnostics.Write("ImageResize", new {originalSize, newSize});
+                }
 
                 return result;
             }
@@ -110,8 +134,17 @@ namespace RendleLabs.MetaImage.Controllers
                             document.QuerySelector("head > meta[property='twitter:image']");
 
             string imageUrl;
+            if (metaImage != null)
+            {
+                if (!string.IsNullOrWhiteSpace(imageUrl = metaImage?.GetAttribute("content")))
+                {
+                    return imageUrl;
+                }
+            }
 
-            if (!string.IsNullOrWhiteSpace(imageUrl = metaImage?.GetAttribute("content")))
+            imageUrl = TryRegex(html, MetaOgImageRegex) ?? TryRegex(html, MetaTwitterImageRegex);
+
+            if (imageUrl != null)
             {
                 return imageUrl;
             }
@@ -120,8 +153,25 @@ namespace RendleLabs.MetaImage.Controllers
             return null;
         }
 
+        private static string TryRegex(string html, Regex regex)
+        {
+            var match = regex.Match(html);
+            if (match.Success && match.Groups.Count == 2)
+            {
+                var value = match.Groups[1].Value;
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    return value;
+                }
+            }
+
+            return null;
+        }
+
         private async Task<string> GetHtmlAsync(string uri)
         {
+            var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
+            var document = await context.OpenAsync(uri);
             try
             {
                 _logger.LogInformation($"Requesting '{uri}'");
@@ -130,6 +180,7 @@ namespace RendleLabs.MetaImage.Controllers
                 {
                     response = await http.GetAsync(uri);
                 }
+
                 if (response.IsSuccessStatusCode)
                 {
                     return await response.Content.ReadAsStringAsync();
