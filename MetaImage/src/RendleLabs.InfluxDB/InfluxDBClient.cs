@@ -99,9 +99,12 @@ namespace RendleLabs.InfluxDB
 
         private void ProcessRequest(WriteRequest request)
         {
-            if (request.Flush && _size > 0)
+            if (request.Flush)
             {
-                SwapMemoryAndWrite();
+                if (_size > 0)
+                {
+                    SwapMemoryAndWrite();
+                }
                 return;
             }
 

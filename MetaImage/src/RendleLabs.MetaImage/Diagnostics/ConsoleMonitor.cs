@@ -23,10 +23,16 @@ namespace RendleLabs.MetaImage.Diagnostics
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
+
             _allListenersSubscription = DiagnosticListener.AllListeners.Do(source =>
             {
-                _subscriptions.Add(source.Do(pair => { Log(source.Name, pair.Key, pair.Value); }).Subscribe());
+                _subscriptions.Add(source.Do(pair =>
+                {
+                    Log(source.Name, pair.Key, pair.Value);
+                })
+                .Subscribe());
             }).Subscribe();
+
             return Task.CompletedTask;
         }
 

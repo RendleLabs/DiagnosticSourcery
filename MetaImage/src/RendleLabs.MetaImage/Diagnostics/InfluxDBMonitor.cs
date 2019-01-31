@@ -37,7 +37,11 @@ namespace RendleLabs.MetaImage.Diagnostics
         {
             if (_client != null)
             {
-                _subscription = DiagnosticSourceInfluxDB.Listen(_client, _ => true);
+                _subscription = DiagnosticSourceInfluxDB.Listen(_client, _ => true, options =>
+                {
+                    options.AddDefaultTag("host", Environment.MachineName);
+                    options.AddDefaultTag("uid", "mark");
+                });
             }
             return Task.CompletedTask;
         }

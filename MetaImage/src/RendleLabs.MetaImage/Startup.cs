@@ -23,6 +23,7 @@ namespace RendleLabs.MetaImage
 //            services.AddHostedService<ConsoleMonitor>();
             services.Configure<InfluxDBOptions>(Configuration.GetSection("InfluxDB"));
             services.AddHostedService<InfluxDBMonitor>();
+
             services.AddHttpClient();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
