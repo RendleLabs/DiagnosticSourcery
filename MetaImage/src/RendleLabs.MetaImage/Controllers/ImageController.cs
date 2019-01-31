@@ -81,12 +81,17 @@ namespace RendleLabs.MetaImage.Controllers
                     Private = false
                 }.ToString();
 
-                if (Diagnostics.IsEnabled("ImageResize"))
-                {
-                    long originalSize = imageResponse.Content.Headers.ContentLength.GetValueOrDefault();
-                    long newSize = stream.Length;
-                    Diagnostics.Write("ImageResize", new {originalSize, newSize});
-                }
+                Diagnostics.IfEnabled("ImageResize")?.Write(new {
+                    originalSize = imageResponse.Content.Headers.ContentLength.GetValueOrDefault(),
+                    newSize = stream.Length
+                });
+
+                // if (Diagnostics.IsEnabled("ImageResize"))
+                // {
+                //     long originalSize = imageResponse.Content.Headers.ContentLength.GetValueOrDefault();
+                //     long newSize = stream.Length;
+                //     Diagnostics.Write("ImageResize", new {originalSize, newSize});
+                // }
 
                 return result;
             }

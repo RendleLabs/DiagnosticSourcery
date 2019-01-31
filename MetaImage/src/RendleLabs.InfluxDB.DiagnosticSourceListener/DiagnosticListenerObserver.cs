@@ -41,7 +41,7 @@ namespace RendleLabs.InfluxDB.DiagnosticSourceListener
         private void Write(string name, object args)
         {
             var formatter = _formatters.GetOrAdd(name, args.GetType());
-            _client.TryRequest(new WriteRequest(formatter, args));
+            _client.TryRequest(new WriteRequest(formatter, args, Activity.Current));
         }
 
         public void Dispose()

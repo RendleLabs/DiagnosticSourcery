@@ -20,7 +20,7 @@ namespace RendleLabs.MetaImage
 
         public void ConfigureServices(IServiceCollection services)
         {
-//            services.AddHostedService<ConsoleMonitor>();
+        //    services.AddHostedService<ConsoleMonitor>();
             services.Configure<InfluxDBOptions>(Configuration.GetSection("InfluxDB"));
             services.AddHostedService<InfluxDBMonitor>();
 

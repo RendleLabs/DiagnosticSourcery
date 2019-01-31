@@ -11,9 +11,8 @@ namespace RendleLabs.InfluxDB.DiagnosticSourceListener
     
     internal sealed class ObjectFormatter
     {
-        private static readonly byte[] ActivityDurationFieldName = Encoding.UTF8.GetBytes("activity_duration=");
+        private static readonly byte[] ActivityDurationFieldName = Encoding.UTF8.GetBytes("activity_duration");
         private const byte Space = (byte) ' ';
-        private const byte Comma = (byte) ',';
 
         private readonly IFormatter[] _fieldFormatters;
         private readonly int _fieldCount;
