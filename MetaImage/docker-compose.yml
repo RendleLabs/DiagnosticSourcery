@@ -2,26 +2,27 @@ version: '3'
 
 services:
   influxdb:
-    image: influxdb:1.7.3
+    image: influxdb:1.7.8
     ports:
       - 8086:8086
     environment:
-      INFLUXDB_DB: iaap
-  
-  chronograf:
-    image: chronograf:1.7.5
-    ports:
-      - 8888:8888
-    depends_on:
-      - influxdb
-    links:
-      - influxdb
+      INFLUXDB_DB: sourcery
   
   grafana:
-    image: grafana/grafana:5.3.2
+    image: grafana/grafana:6.3.5
     ports:
       - 3000:3000
     depends_on:
       - influxdb
     links:
       - influxdb
+  
+  jaeger:
+    image: jaegertracing/all-in-one:1.14
+    ports:
+      - 5775:5775/udp
+      - 6831:6831/udp
+      - 6832:6832/udp
+      - 5778:5778
+      - 16686:16686
+      - 14268:14268

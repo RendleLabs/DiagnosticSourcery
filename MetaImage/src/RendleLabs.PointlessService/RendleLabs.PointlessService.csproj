@@ -11,8 +11,8 @@
     <PackageReference Include="AngleSharp" Version="0.10.1" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="OpenTelemetry" Version="0.2.0-alpha.26" />
-    <PackageReference Include="OpenTelemetry.Collector.AspNetCore" Version="0.2.0-alpha.26"/>
-    <PackageReference Include="OpenTelemetry.Collector.Dependencies" Version="0.2.0-alpha.26"/>
+    <PackageReference Include="OpenTelemetry.Collector.AspNetCore" Version="0.2.0-alpha.26" />
+    <PackageReference Include="OpenTelemetry.Collector.Dependencies" Version="0.2.0-alpha.26" />
     <PackageReference Include="OpenTelemetry.Exporter.Jaeger" Version="0.2.0-alpha.26" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.6.0-rc1.19456.4" />

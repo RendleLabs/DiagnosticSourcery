@@ -1,19 +1,13 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using OpenTelemetry.Collector.AspNetCore;
-using OpenTelemetry.Collector.Dependencies;
-using OpenTelemetry.Exporter.Jaeger;
-using OpenTelemetry.Trace;
-using OpenTelemetry.Trace.Sampler;
-using RendleLabs.MetaImage.Diagnostics;
-using RendleLabs.MetaImage.Extensions;
-using RendleLabs.MetaImage.Options;
+using RendleLabs.PointlessService.Diagnostics;
+using RendleLabs.PointlessService.Extensions;
+using RendleLabs.PointlessService.Options;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
-namespace RendleLabs.MetaImage
+namespace RendleLabs.PointlessService
 {
     public class Startup
     {

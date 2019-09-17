@@ -46,7 +46,12 @@ namespace RendleLabs.MetaImage.Controllers
                 return BadRequest();
             }
 
+            var pointlessTask = DoPointlessThing();
+
             var html = await GetHtmlAsync(uri);
+
+            await pointlessTask;
+            
             if (html == null) return NotFound();
 
             var metaImageUri = GetImageUri(uri, html);
@@ -55,8 +60,7 @@ namespace RendleLabs.MetaImage.Controllers
 
             _logger.LogInformation($"GET '{metaImageUri}'");
             HttpResponseMessage imageResponse;
-            using (var http = _http.CreateClient())
-            {
+            using (var http = _http.CreateClient())            {
                 imageResponse = await http.GetAsync(metaImageUri);
             }
 
@@ -81,17 +85,17 @@ namespace RendleLabs.MetaImage.Controllers
                     Private = false
                 }.ToString();
 
-                Diagnostics.IfEnabled("ImageResize")?.Write(new {
-                    originalSize = imageResponse.Content.Headers.ContentLength.GetValueOrDefault(),
-                    newSize = stream.Length
-                });
+                if (Diagnostics.IsEnabled("ImageResize"))
+                {
+                    long originalSize = imageResponse.Content.Headers.ContentLength.GetValueOrDefault();
+                    long newSize = stream.Length;
+                    Diagnostics.Write("ImageResize", new {originalSize, newSize});
+                }
 
-                // if (Diagnostics.IsEnabled("ImageResize"))
-                // {
-                //     long originalSize = imageResponse.Content.Headers.ContentLength.GetValueOrDefault();
-                //     long newSize = stream.Length;
-                //     Diagnostics.Write("ImageResize", new {originalSize, newSize});
-                // }
+                // Diagnostics.IfEnabled("ImageResize")?.Write(new {
+                //     originalSize = imageResponse.Content.Headers.ContentLength.GetValueOrDefault(),
+                //     newSize = stream.Length
+                // });
 
                 return result;
             }
@@ -200,6 +204,22 @@ namespace RendleLabs.MetaImage.Controllers
             {
                 _logger.LogError(e, e.Message);
                 return null;
+            }
+        }
+
+        private async Task DoPointlessThing()
+        {
+            using (var client = _http.CreateClient())
+            {
+                try
+                {
+                    var response = await client.GetStringAsync("http://localhost:5005/pointless");
+                    _logger.LogInformation(response);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, e.Message);
+                }
             }
         }
     }

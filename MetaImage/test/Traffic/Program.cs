@@ -26,15 +26,26 @@ namespace Traffic
             http.BaseAddress = new Uri("http://localhost:5000");
 
             var stopwatch = Stopwatch.StartNew();
+            int count = 0;
+
+            Console.Write("Making requests");
 
             while (stopwatch.ElapsedMilliseconds < 60000)
             {
+                Console.Write(".");
                 var url = Uri.EscapeDataString(Urls[random.Next(Urls.Length)]);
                 using (await http.GetAsync($"/image?u={url}&w=500&h=375"))
                 {
                     await Task.Delay(random.Next(500));
                 }
+                if (++count % 10 == 0)
+                {
+                    System.Console.Write($"{count}");
+                }
             }
+
+            System.Console.WriteLine();
+            System.Console.WriteLine("Done.");
         }
     }
 }
